@@ -1,4 +1,4 @@
-# Nonlinear Granger Causality Analysis for Chaotic Maps
+# Nonlinear Granger Causality Analysis Using Neural Network Architectures for Sequential Data
 
 This repository implements **nonlinear Granger causality (GC) analysis** using neural networks for four well-known chaotic maps. It accompanies the scientific article describing the methodology and results.
 
