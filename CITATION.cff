@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Nonlinear Granger Causality Analysis for Chaotic Maps"
+type: software
+authors:
+  - name: "Diego Nicolás Chacón Wilches"
+    orcid: "https://orcid.org/0009-0002-5164-3762"
+  - name: "Alvaro Orjuela-Cañon"
+repository-code: "https://github.com/Diego-ChaconW/nonlinear-granger-causality"
+license: MIT
+version: "1.0.0"
+date-released: "2026-03-05"
+abstract: >-
+  Implementation of nonlinear Granger causality analysis using neural
+  networks (MLP, LSTM, GRU) for four chaotic maps: Hénon, Ikeda,
+  Tinkerbell, and Rulkov. Includes hyperparameter search, multi-run
+  experiments, and statistical analysis pipeline.
+keywords:
+  - Granger causality
+  - nonlinear causality
+  - neural networks
+  - chaotic maps
+  - time series analysis

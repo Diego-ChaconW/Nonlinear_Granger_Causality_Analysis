@@ -1,0 +1,11 @@
+# Core dependencies
+numpy>=1.21.0
+matplotlib>=3.5.0
+scikit-learn>=1.0.0
+
+# Neural network framework
+tensorflow>=2.10.0
+tf_keras>=2.16.0
+
+# Nonlinear Granger causality library
+nonlincausality>=1.0.0

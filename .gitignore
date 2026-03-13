@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Results (large files — users generate their own)
+results/hyperparameters/*.pkl
+results/experiments/*.pkl
+results/figures/*.png
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# TensorFlow / Keras
+*.h5
+*.keras
+logs/
