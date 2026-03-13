@@ -6,7 +6,7 @@ authors:
   - name: "Diego Nicolás Chacón Wilches"
     orcid: "https://orcid.org/0009-0002-5164-3762"
   - name: "Alvaro Orjuela-Cañon"
-repository-code: "https://github.com/Diego-ChaconW/nonlinear-granger-causality"
+repository-code: "https://github.com/Diego-ChaconW/Nonlinear_Granger_Causality_Analysis"
 license: MIT
 version: "1.0.0"
 date-released: "2026-03-05"
