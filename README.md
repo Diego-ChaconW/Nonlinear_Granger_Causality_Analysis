@@ -1,190 +1,134 @@
-# Nonlinear Granger Causality Analysis for Chaotic Maps
+# Nonlinear Granger Causality Analysis Using Neural Network Architectures for Sequential Data
 
-This repository implements **nonlinear Granger causality (GC) analysis** using neural networks for four well-known chaotic maps. It accompanies the scientific article describing the methodology and results.
+**Manuscript ID:** 9993
 
-## Overview
+**Authors:** Diego N. Chacón Wilches and A. Orjuela-Cañón.
 
-We test whether one variable in a coupled chaotic system Granger-causes the other by comparing two neural network models:
+**Affiliations:** Diego N. Chacón Wilches and A. Orjuela-Cañón are with the School of Medicine and Health Sciences from Universidad del Rosario, Bogota, Colombia (e-mail: diegon.chacon@urosario.edu.co and alvaro.orjuela@urosario.edu.co).
 
-- **NAR** (Restricted model): predicts the target using only its own past values.
-- **NARX** (Full model): predicts the target using both its own and the potential cause's past values.
+---
 
-A statistically significant improvement in the full model (assessed via the **Wilcoxon signed-rank test**) indicates Granger causality.
+## Repository Overview
 
-### Supported Chaotic Maps
+This repository contains the complete computational pipeline for implementing **nonlinear Granger causality (GC) analysis** using neural networks. It accompanies the scientific manuscript, providing all necessary source code, scripts, and interactive notebooks to generate synthetic data, tune hyperparameters, run multi-initialization experiments, and produce the statistical analyses and figures presented in the study.
 
-| Map | Dynamics | Reference |
-|-----|----------|-----------|
-| **Hénon** | Quadratic, 2D discrete | Hénon (1976) |
-| **Ikeda** | Optical cavity, 2D discrete | Ikeda (1979) |
-| **Tinkerbell** | Quadratic, 2D discrete | Nusse & Yorke (1994) |
-| **Rulkov** | Neuronal bursting, 2D discrete | Rulkov (2001) |
+The methodology compares two models to test if variable $Y$ Granger-causes variable $X$:
+1. **NAR (Restricted model):** Predicts $X$ using only past values of $X$.
+2. **NARX (Full model):** Predicts $X$ using past values of both $X$ and $Y$.
 
-### Neural Network Architectures
+If the NARX model significantly outperforms the NAR model (assessed via the Wilcoxon signed-rank test), it is inferred that $Y$ Granger-causes $X$. The code evaluates this using Multi-Layer Perceptrons (MLP), Long Short-Term Memory (LSTM), and Gated Recurrent Units (GRU) across four discrete-time chaotic maps.
 
-- **MLP** (Multi-Layer Perceptron)
-- **LSTM** (Long Short-Term Memory)
-- **GRU** (Gated Recurrent Unit)
+---
 
-## Repository Structure
+## File and Folder Description
 
-```
-nonlinear-granger-causality/
-├── README.md               # This file
-├── LICENSE                  # MIT license
-├── CITATION.cff             # How to cite this repository
-├── .gitignore
-├── requirements.txt         # Python dependencies
-│
-├── src/                     # Core Python modules
-│   ├── __init__.py          # Keras 3 compatibility setup
-│   ├── maps.py              # Chaotic map generators
-│   ├── config.py            # Shared constants and validators
-│   ├── data.py              # Data generation, normalization, splitting
-│   ├── causality.py         # Nonlinear causality test wrapper
-│   └── analysis.py          # Statistics and plotting functions
-│
-├── notebooks/               # Interactive Jupyter notebooks
-│   ├── 01_hyperparameter_search.ipynb
-│   ├── 02_run_experiment.ipynb
-│   └── 03_results_analysis.ipynb
-│
-├── scripts/                 # CLI scripts for automation
-│   ├── run_hyperparameter_search.py
-│   ├── run_experiment.py
-│   └── run_analysis.py
-│
-├── data/                    # Data directory (synthetic)
-│   └── README.md
-│
-└── results/                 # Output directory
-    ├── README.md
-    ├── hyperparameters/     # .pkl from step 1
-    ├── experiments/         # .pkl from step 2
-    └── figures/             # .png from step 3
-```
+The repository is modularly structured to ensure reproducibility. Below is a detailed description of all contents.
 
-## Pipeline
+### 📂 `src/` (Core Python Modules)
+Contains the underlying logic and reusable functions imported by both the scripts and notebooks.
+* `__init__.py`: Initialization file. Crucially, sets the `TF_USE_LEGACY_KERAS` environment variable required for compatibility between Keras 3 and the underlying causality library.
+* `maps.py`: Mathematical generators for the four synthetic 2D chaotic dynamical systems used in the study: Hénon, Ikeda, Tinkerbell, and Rulkov maps.
+* `data.py`: Handles the overall data pipeline. Includes functions to generate the time series of specific lengths, normalize all columns to the $[-1, 1]$ interval before training, and split the data into train (70%), validation (20%), and test subsets.
+* `causality.py`: The core wrapper around the `nonlincausalityNN` function. It executes the training of the NAR and NARX models, handles error catching, extracts prediction errors, and calculates total error and Cohen's $d$ while managing memory cleanup (garbage collection).
+* `analysis.py`: Statistical and visualization functions. Calculates mean and standard deviations, prints causality inference summary tables, and generates matplotlib histograms for Residual Sum of Squares (RSS), p-values, and Cohen's $d$.
+* `config.py`: Centralized configuration file containing valid architectures, maps, directions, and mapping variables to translate human-readable names to library-specific codes.
 
-The analysis follows a three-step pipeline:
+### 📂 `scripts/` (Command-Line Automation)
+Python scripts utilizing `argparse` for running the pipeline automatically without human interaction.
+* `run_hyperparameter_search.py`: Evaluates all combinations of neurons, lags, and batch sizes for a chosen neural network architecture and chaotic map. Outputs a `.pkl` file with the configuration that achieves the lowest total prediction error (requiring a p-value < 0.05).
+* `run_experiment.py`: Addresses the NN random initialization problem by training the optimal model setup $N$ times (e.g., 100 runs). Periodically saves checkpoints and outputs a final `.pkl` file with the aggregated metrics.
+* `run_analysis.py`: Reads the final experiment `.pkl` file, computes summary statistics (Mean $\pm$ Std), and automatically generates and saves statistical distribution histograms as `.png` images.
 
-```
-Step 1                    Step 2                    Step 3
-Hyperparameter Search ──► Experiment (N runs) ──► Results Analysis
-        │                         │                       │
-  hyperparameters.pkl       results_final.pkl        figures + stats
-```
+### 📂 `notebooks/` (Interactive Pipeline)
+Jupyter Notebook equivalents of the `scripts/`, designed for exploratory, step-by-step interactive use.
+* `01_hyperparameter_search.ipynb`: Interactive grid search execution.
+* `02_run_experiment.ipynb`: Interactive $N$-run experiment with visual progress tracking.
+* `03_results_analysis.ipynb`: Interactive data analysis and inline plotting of the results.
 
-### Step 1: Hyperparameter Search
+### 📂 `data/`
+* `README.md`: Explains that all data used in this study is synthetic and generated programmatically at runtime via the `src/maps.py` functions, eliminating the need for external static datasets.
 
-Evaluates all combinations of neurons, lags, batch sizes, and architectures with a single training run each. Selects the best configuration based on total error (only considering configurations with p-value < 0.05).
+### 📂 `results/`
+Destination directories for the output pipelines (initially empty).
+* `hyperparameters/`: Target folder for the best hyperparameter configuration arrays (`.pkl`) generated by Step 1.
+* `experiments/`: Target folder for the multi-run metrics (`.pkl`) generated by Step 2.
+* `figures/`: Target folder for the generated RSS, p-value, and Cohen's $d$ histogram images (`.png`) from Step 3.
+* `README.md`: Documentation on the structure and expected naming conventions of the output files.
 
-### Step 2: Experiment Execution
+### 📄 Root Files
+* `.gitignore`: Specifies intentionally untracked files (e.g., Python cache, local `.pkl` results).
+* `CITATION.cff`: Standardized citation formatting rules for this software.
+* `LICENSE`: MIT License permitting open use, modification, and distribution.
+* `requirements.txt`: The definitive list of pinned Python dependencies required to run the code.
 
-Runs the selected hyperparameters with **100 random initializations** to address the neural network initialization problem. Saves intermediate checkpoints and a final `.pkl` with all metrics.
+---
 
-### Step 3: Results Analysis
+## 💻 Requirements
 
-Loads the experiment results, computes **mean ± standard deviation** for all metrics, and generates histograms comparing NAR vs NARX prediction errors.
+To ensure reproducibility, install the exact dependencies listed in `requirements.txt`. 
 
-## Requirements
+* Python 3.8 or higher.
+* `numpy >= 1.21.0`
+* `matplotlib >= 3.5.0`
+* `scikit-learn >= 1.0.0`
+* `tensorflow >= 2.10.0`
+* `tf_keras >= 2.16.0` (Required for legacy optimizer support)
+* `nonlincausality >= 1.0.0`
 
-- Python 3.8+
-- TensorFlow 2.x
-- See `requirements.txt` for complete list
-
-## Installation
+### Installation
 
 ```bash
-git clone https://github.com/Diego-ChaconW/nonlinear-granger-causality.git
-cd nonlinear-granger-causality
+git clone https://github.com/Diego-ChaconW/Nonlinear_Granger_Causality_Analysis.git
+cd Nonlinear_Granger_Causality_Analysis
 pip install -r requirements.txt
 ```
 
-## Usage
+---
 
-### Option A: Jupyter Notebooks (Interactive)
+## 🚀 How to Run / Reproduce
 
+You can reproduce the methodology using either the interactive Jupyter Notebooks (inside `notebooks/`) or the automated CLI scripts (inside `scripts/`). The pipeline is entirely identical.
+
+### Using Command-Line Scripts
+
+**Step 1: Hyperparameter Grid Search**  
+Find the best model parameters for a specific chaotic map (e.g., Hénon) and direction ($Y \rightarrow X$).
 ```bash
-jupyter notebook notebooks/01_hyperparameter_search.ipynb
+python scripts/run_hyperparameter_search.py --map henon --direction Y_to_X --arch GRU --output results/hyperparameters/
 ```
 
-Follow the notebooks in order: `01 → 02 → 03`.
-
-### Option B: Command-Line Scripts (Automation)
-
+**Step 2: Multi-Initialization Experiment**  
+Execute 100 iterations utilizing the best parameters found in Step 1 to account for NN weight initialization variance.
+*(Note: 100 runs can take several hours depending on hardware).*
 ```bash
-# Step 1: Hyperparameter search
-python scripts/run_hyperparameter_search.py \
-    --map henon --direction Y_to_X --arch GRU \
-    --output results/hyperparameters/
-
-# Step 2: Run experiment (100 initializations)
-python scripts/run_experiment.py \
-    --map henon --direction Y_to_X --arch GRU \
-    --neurons 100 --lag 5 --batch-size 16 --runs 100 \
-    --output results/experiments/
-
-# Step 3: Generate statistics and figures
-python scripts/run_analysis.py \
-    --pkl results/experiments/results_henon_GRU_Y_to_X_final.pkl \
-    --output results/figures/
+python scripts/run_experiment.py --map henon --direction Y_to_X --arch GRU --neurons 100 --lag 5 --batch-size 16 --runs 100 --output results/experiments/
 ```
 
-### Running All Maps and Directions
-
+**Step 3: Statistical Analysis and Plotting**  
+Process the experiment results to compute mean and standard deviations, and generate histogram plots.
 ```bash
-for MAP in henon ikeda tinkerbell rulkov; do
-    for DIR in Y_to_X X_to_Y; do
-        python scripts/run_experiment.py \
-            --map $MAP --direction $DIR --arch GRU \
-            --neurons 100 --lag 5 --batch-size 16 --runs 100
-        python scripts/run_analysis.py \
-            --pkl results/experiments/results_${MAP}_GRU_${DIR}_final.pkl
-    done
-done
+python scripts/run_analysis.py --pkl results/experiments/results_henon_GRU_Y_to_X_final.pkl --output results/figures/
 ```
 
-## Causality Directions
+---
 
-The `nonlincausality` library expects data as `[target, cause]`:
+## 📝 Notes on Methodology
 
-| Direction Setting | Tests | Data Column 0 | Data Column 1 |
-|-------------------|-------|---------------|---------------|
-| `Y_to_X` | Does Y Granger-cause X? | X (target) | Y (cause) |
-| `X_to_Y` | Does X Granger-cause Y? | Y (target) | X (cause) |
+### Causality Directions
+The `nonlincausality` backend expects data matrices in a specific order `[target, cause]`. The code handles this via the `--direction` flag:
+* `Y_to_X`: Tests if $Y$ causes $X$. Data is structured as `[X, Y]`.
+* `X_to_Y`: Tests if $X$ causes $Y$. Data is structured as `[Y, X]`.
 
-## Data Normalization
+### Normalization
+As defined in the manuscript methodology, all generated time series are strictly normalized to the $[-1, 1]$ interval prior to training to ensure stability across different chaotic maps.
 
-All time series are normalized to the interval **[-1, 1]** before analysis:
+### Statistical Significance ($\alpha = 0.05$)
+The grid search explicitly discards any hyperparameter combination that yields a Wilcoxon signed-rank test p-value $\ge 0.05$. The final analysis summarizes the percentage of the $N$ initializations that successfully achieved statistical significance.
 
-```
-x_normalized = 2 * (x - x_min) / (x_max - x_min) - 1
-```
+---
 
-## Statistical Significance
+## ✉️ Contact
 
-- Significance level: **α = 0.05**
-- In hyperparameter search, only configurations with **p-value < 0.05** are considered as valid candidates.
-- In experiment results, the percentage of runs achieving significance is reported.
-
-## Citation
-
-If you use this code, please cite:
-
-```
-@software{nonlinear_granger_causality,
-  title = {Nonlinear Granger Causality Analysis for Chaotic Maps},
-  url = {https://github.com/Diego-ChaconW/nonlinear-granger-causality}
-}
-```
-
-See `CITATION.cff` for the full citation metadata.
-
-## License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE).
-
-## Acknowledgments
-
-This work uses the [`nonlincausality`](https://github.com/mrostecki/nonlincausality) library for nonlinear Granger causality testing with neural networks.
+For questions regarding the methodology, codebase, or replication of results, please contact:
+* Diego N. Chacón Wilches: [diegon.chacon@urosario.edu.co](mailto:diegon.chacon@urosario.edu.co)
+* Alvaro Orjuela-Cañón: [alvaro.orjuela@urosario.edu.co](mailto:alvaro.orjuela@urosario.edu.co)
