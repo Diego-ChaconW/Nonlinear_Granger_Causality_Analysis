@@ -4,7 +4,7 @@
 
 **Authors:** Diego N. Chacón Wilches and A. Orjuela-Cañón.
 
-**Affiliations:** Diego N. Chacón Wilches and A. Orjuela-Cañón are with the School of Medicine and Health Sciences from Universidad del Rosario, Bogota, Colombia (e-mail: diegon.chacon@urosario.edu.co and alvaro.orjuela@urosario.edu.co).
+**Affiliations:** Diego N. Chacón Wilches and A. Orjuela-Cañón are with the School of Medicine and Health Sciences from Universidad del Rosario, Bogota, Colombia.
 
 ---
 
