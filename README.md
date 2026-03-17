@@ -10,7 +10,7 @@
 
 ## Repository Overview
 
-This repository contains the complete computational pipeline for implementing **nonlinear Granger causality (GC) analysis** using neural networks. It accompanies the scientific manuscript, providing all necessary source code, scripts, and interactive notebooks to generate synthetic data, tune hyperparameters, run multi-initialization experiments, and produce the statistical analyses and figures presented in the study.
+This repository contains the complete computational pipeline for implementing **nonlinear Granger causality (GC) analysis** using neural networks. It accompanies the scientific manuscript, providing all necessary source code, scripts, and interactive notebooks to generate synthetic data, tune hyperparameters, run multi-initialization experiments, and produce the statistical analyses and figures presented in the article.
 
 The methodology compares two models to test if variable $Y$ Granger-causes variable $X$:
 1. **NAR (Restricted model):** Predicts $X$ using only past values of $X$.
